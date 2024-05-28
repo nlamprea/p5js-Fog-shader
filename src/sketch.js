@@ -9,24 +9,28 @@ function preload(){
 function setup() {
   createCanvas(400, 300, WEBGL);
   slider = createSlider(10,100,47)
+  slider.position(10, height + 10);
 }
 
 function draw() {
-  background(175);
+  background(200);
   
   rectMode(CENTER);
-  noStroke();
   //fill(0,0,150);
+
+  let val = slider.value();
+  ambientLight(val, val, val);
+
+  //directionalLight(250, 250, 250, 0, -1, 0);
 
   rotateX(angle)
   rotateY(angle)
   rotateZ(angle)
 
-  texture(image)
-  //rect(0,0,50,50)
-  //translate(mouseX,mouseY)
-  //box(100)
-  box(slider.value())
+  noStroke();
 
-  angle += 0.02;
+  texture(image)
+  box(100)
+
+  angle += 0.02;  
 }
