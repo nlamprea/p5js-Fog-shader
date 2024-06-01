@@ -1,61 +1,38 @@
 let angle = 0;
 let img;
-let nearSlider, farSlider;
+let slider;
+let fogShader;
 
 function preload() {
   img = loadImage("https://webglfundamentals.org/webgl/resources/f-texture.png");
+  fogShader = loadShader('vertShader.vert', 'fragShader.frag');
 }
 
 function setup() {
-  createCanvas(300, 200, WEBGL);
-
-  nearSlider = createSlider(0, 255, 150);
-  nearSlider.position(10, height + 10);
-  let nearLabel = createP('FogNear');
-  nearLabel.position(nearSlider.x * 2 + nearSlider.width, height + 5);
-
-  farSlider = createSlider(0, 255, 50);
-  farSlider.position(10, height + 40);
-  let farLabel = createP('FogFar');
-  farLabel.position(farSlider.x * 2 + farSlider.width, height + 35);
+  createCanvas(400, 300, WEBGL);
+  slider = createSlider(0, 1, 0.47, 0.01); 
+  slider.position(10, height + 10);
+  noStroke();
 }
 
 function draw() {
   background(200);
-  rectMode(CENTER);
 
-  let nearVal = nearSlider.value();
-  let farVal = farSlider.value();
+  shader(fogShader);
+  fogShader.setUniform('u_time', millis() / 1000.0);
+  fogShader.setUniform('u_resolution', [width, height]);
+  fogShader.setUniform('u_fogDensity', slider.value());
+  fogShader.setUniform('u_texture', img);
+  fogShader.setUniform('u_fogColor', [0.8, 0.8, 0.8, 1.0]);
 
-  if (nearVal === 0 && farVal === 0) {
-    return;
-  }
+  rotateX(angle);
+  rotateY(angle);
+  rotateZ(angle);
 
-  let numBoxes = 20; 
-  let initialSpacing = 500; 
-
-  for (let i = 0; i < numBoxes; i++) {
-    push();
-    let spacing = initialSpacing * pow(0.9, i);
-    let offset = map(i, 0, numBoxes - 1, -300, 300);
-    translate(offset, 0, -spacing * i);
-
-    let brightness = map(i, 0, numBoxes - 1, nearVal, farVal);
-    let opacity = map(i, 0, numBoxes - 1, 255, 50);
-
-    tint(brightness, brightness, brightness, opacity);
-
-    let boxSize = map(i, 0, numBoxes - 1, 100, 20);
-
-    rotateX(angle);
-    rotateY(angle);
-    rotateZ(angle);
-
-    noStroke();
-    texture(img);
-    box(boxSize);
-    pop();
-  }
+  beginShape();
+  texture(img);
+  box(100);
+  endShape(CLOSE);
 
   angle += 0.02;
 }
