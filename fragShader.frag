@@ -1,26 +1,22 @@
+// Fragment shader
 precision mediump float;
 
-uniform float u_time;
-uniform vec2 u_resolution;
-uniform sampler2D u_texture;
-uniform float u_fogDensity;
-uniform vec4 u_fogColor;
+uniform sampler2D uTexture;
+uniform float uFogNear;
+uniform float uFogFar;
 
 varying vec2 vTexCoord;
-varying vec3 vWorldPosition;
+varying float vFogDepth;
 
 void main() {
-  vec4 texColor = texture2D(u_texture, vTexCoord);
+  vec4 texColor = texture2D(uTexture, vTexCoord);
 
-  // Calcular la distancia desde el fragmento hasta la cámara
-  float distance = length(vWorldPosition);
-  
-  // Calcular la cantidad de niebla usando una curva exponencial
-  float fogFactor = exp(-u_fogDensity * distance);
-  fogFactor = clamp(fogFactor, 0.0, 1.0);
-  
-  // Aplicar la niebla al color del fragmento
-  vec4 finalColor = mix(u_fogColor, texColor, fogFactor);
-  
-  gl_FragColor = finalColor;
+  // Calcular el factor de niebla basado en la profundidad
+  float fogFactor = smoothstep(uFogNear, uFogFar, vFogDepth);
+
+  // Color de la niebla (puedes cambiarlo según tus necesidades)
+  vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.0);
+
+  // Interpolar entre el color de la textura y el color de la niebla
+  gl_FragColor = mix(texColor, fogColor, fogFactor);
 }
